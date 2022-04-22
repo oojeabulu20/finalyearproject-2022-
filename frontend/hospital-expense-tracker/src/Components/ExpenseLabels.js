@@ -1,29 +1,26 @@
 import React from 'react';
+import {default as api} from "../store/apiSlicing"
+import {getLabels} from "../calculations/calculations"
 
-
-const object = [
-    {
-        type: "Bank",
-        color: "#ff0000",
-        percent:"67"
-    },
-     {
-        type: "Expense",
-        color: "#ffff00",
-        percent:"22"
-    },
-      {
-        type: "Investment",
-        color: "#0000ff",
-        percent:"11"
-    },
-]
 
 
 export default function ExpenseLabels() {
+    const { data, isFetching, isSuccess, isError } = api.useGetLabelsQuery()
+    let Transactions;
+
+    
+    if (isFetching) {
+        Transactions = <div>Fetching</div>    
+    } else if (isSuccess) {
+        console.log()
+        Transactions = getLabels(data,"type").map((v,i) =><LabelComponent key={i} data={v}></LabelComponent>)
+    } else if (isError) {
+        Transactions = <div>Error</div>
+    }
+
     return (
         <>
-          {object.map((v,i) =><LabelComponent key={i} data={v}></LabelComponent>)}
+          {Transactions}
       </>
   )
 }
@@ -35,7 +32,7 @@ function LabelComponent({ data }) {
                 <div className='w-2 h-2 rounded py-3' style={{background:data.color ??"#ff0000"}}></div>
                 <h3 className='text-md'>{data.type ?? ""}</h3>
             </div>
-            <h3 className='font-bold'>{data.percent}</h3>
+            <h3 className='font-bold'>{Math.round(data.percentage) ?? 0}%</h3>
         </div>
     )
 }
